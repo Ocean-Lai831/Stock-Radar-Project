@@ -7,7 +7,10 @@ from scipy.integrate import simpson
 
 st.set_page_config(page_title="數值積分 x 籌碼", layout="wide")
 st.title("🛡️ 數值分析期末專案")
-
+# 🎯 新增防護罩：Streamlit 專屬快取機制 (保留資料 1 小時，避免被 Yahoo 封鎖)
+@st.cache_data(ttl=3600, show_spinner=False)
+def load_data(stock_ticker, time_period):
+    return yf.Ticker(stock_ticker).history(period=time_period)
 with st.sidebar:
     st.header("參數設定")
     ticker = st.text_input("股票代碼", value="2330.TW")
@@ -18,7 +21,22 @@ with st.sidebar:
 if btn:
     with st.spinner("正在執行辛普森積分與價值區間運算..."):
         # 1. 抓取資料
-        df = yf.Ticker(ticker).history(period=period)
+        if btn:
+    with st.spinner("正在執行辛普森積分與價值區間運算..."):
+        
+        # 1. 抓取資料 (改用快取函數)
+        try:
+            df = load_data(ticker, period)
+        except Exception as e:
+            st.error("⚠️ Yahoo Finance 伺服器目前連線擁擠，請稍後再試！")
+            st.stop()
+            
+        # 🎯 檢查有沒有抓到資料！
+        if df.empty:
+            st.error(f"⚠️ 找不到股票代碼【{ticker}】的資料！請確認代碼是否輸入正確（台股記得加 .TW）。")
+            st.stop()
+            
+        # ... 下面維持原本的 df.index 時區處理邏輯 ...
 
         # 🎯 新增防護罩：檢查有沒有抓到資料！
         if df.empty:
