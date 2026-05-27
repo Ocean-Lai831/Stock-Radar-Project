@@ -35,18 +35,14 @@ if btn:
         if df.empty:
             st.error(f"⚠️ 找不到股票代碼【{ticker}】的資料！請確認代碼是否輸入正確（台股記得加 .TW）。")
             st.stop()
-        
-        # 1. 抓取資料 (改用快取函數)
-        try:
-            df = load_data(ticker, period)
-        except Exception as e:
-            st.error("⚠️ Yahoo Finance 伺服器目前連線擁擠，請稍後再試！")
-            st.stop()
+
+        # 時區處理
+        df.index = pd.to_datetime(df.index)
+        if df.index.tz is not None:
+            df.index = df.index.tz_localize(None)
             
-        # 🎯 檢查有沒有抓到資料！
-        if df.empty:
-            st.error(f"⚠️ 找不到股票代碼【{ticker}】的資料！請確認代碼是否輸入正確（台股記得加 .TW）。")
-            st.stop()
+        prices = df['Close'].values
+        volumes = df['Volume'].values
             
         # ... 下面維持原本的 df.index 時區處理邏輯 ...
 
