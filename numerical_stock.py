@@ -23,9 +23,18 @@ if btn:
         # 1. 抓取資料
         if btn:
     with st.spinner("正在執行辛普森積分與價值區間運算..."):
-        # 下面的程式碼也都要跟著這層縮排喔！
+        
+        # 1. 抓取資料 (改用快取函數)
         try:
             df = load_data(ticker, period)
+        except Exception as e:
+            st.error("⚠️ Yahoo Finance 伺服器目前連線擁擠，請稍後再試！")
+            st.stop()
+            
+        # 🎯 檢查有沒有抓到資料！
+        if df.empty:
+            st.error(f"⚠️ 找不到股票代碼【{ticker}】的資料！請確認代碼是否輸入正確（台股記得加 .TW）。")
+            st.stop()
         
         # 1. 抓取資料 (改用快取函數)
         try:
