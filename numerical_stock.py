@@ -23,6 +23,9 @@ if btn:
         # 1. 抓取資料
         if btn:
     with st.spinner("正在執行辛普森積分與價值區間運算..."):
+        # 下面的程式碼也都要跟著這層縮排喔！
+        try:
+            df = load_data(ticker, period)
         
         # 1. 抓取資料 (改用快取函數)
         try:
